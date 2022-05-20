@@ -1,7 +1,11 @@
+using Lagetronix.Books.Data;
+using Lagetronix.Books.Data.Contracts;
+using Lagetronix.Books.Data.Repositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -32,6 +36,12 @@ namespace Lagetronix.Books.Api
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Lagetronix.Books.Api", Version = "v1" });
             });
+
+            services.AddDbContext<AppDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("Default")));
+
+            services.AddScoped<IBooksRepository, BooksRepository>();
+            services.AddScoped<ICategoriesRepository, CategoriesRepositories>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

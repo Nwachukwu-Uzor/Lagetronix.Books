@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using Lagetronix.Books.Data.Contracts;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -11,5 +13,13 @@ namespace Lagetronix.Books.Api.Controllers
     [ApiController]
     public class BaseController : ControllerBase
     {
+        protected readonly IUnitOfWork _unitOfWork;
+        protected readonly IMapper _mapper;
+
+        public BaseController(IUnitOfWork unitOfWork, IMapper mapper)
+        {
+            _unitOfWork = unitOfWork;
+            _mapper = mapper;
+        }
     }
 }
