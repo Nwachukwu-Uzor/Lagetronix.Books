@@ -151,6 +151,56 @@ namespace Lagetronix.Books.Api.Controllers
             }
         }
 
+        [HttpPut("{bookId:Guid}")]
+        public async Task<ActionResult<ApiResponse<BookResponseDto>>> UpdateBook(Guid bookId, BookPutUpdateDto bookUpdateDto)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(
+                        ApiResponse<BookResponseDto>
+                            .FailureResponse(new List<string> { "Invalid data for update" })
+                    );
+                }
+
+                var bookEntity = await _unitOfWork.Books.GetByIdAsync(bookId);
+
+                if (bookEntity == null)
+                {
+                    return NotFound(
+                         ApiResponse<BookResponseDto>
+                            .FailureResponse(new List<string> { "No book with the specified id" })
+                    );
+                }
+
+                var bookUpdateEntity = _mapper.Map(bookUpdateDto, bookEntity);
+
+                var updatedBook = await _unitOfWork.Books.UpdateAsync(bookUpdateEntity);
+
+                if (updatedBook == null)
+                {
+                    return BadRequest(
+                        ApiResponse<BookResponseDto>
+                            .FailureResponse(new List<string> { "Invalid model properties" })
+                    );
+                }
+
+                var bookToReturn = _mapper.Map<BookResponseDto>(updatedBook);
+
+                return Ok(
+                    ApiResponse<BookResponseDto>.SuccessResponse(bookToReturn)
+                );
+
+            } catch(Exception ex)
+            {
+                return BadRequest(
+                   ApiResponse<BookResponseDto>
+                   .FailureResponse(new List<string> { ex.Message })
+               );
+            }
+        }
+
         [HttpPatch("{bookId:Guid}")]
         public async Task<ActionResult<ApiResponse<BookResponseDto>>> UpdateBook(
             Guid bookId, JsonPatchDocument<BookPatchUpdateDto> patchDocument
@@ -246,6 +296,39 @@ namespace Lagetronix.Books.Api.Controllers
                 return BadRequest(
                    ApiResponse<BookResponseDto>.FailureResponse(new List<string> { ex.Message })
                );
+            }
+        }
+
+        [HttpDelete("{bookId:Guid}")]
+        public async Task<ActionResult> DeleteBook(Guid bookId)
+        {
+            try
+            {
+                var bookToDelete = await _unitOfWork.Books.GetByIdAsync(bookId);
+
+                if (bookToDelete == null)
+                {
+                    return NotFound(
+                        ApiResponse<BookResponseDto>.FailureResponse(new List<string> { "No book with the Id provided" })
+                    );
+                }
+
+                var isDeleted = await _unitOfWork.Books.DeleteAsync(bookToDelete);
+
+                if (!isDeleted)
+                {
+                    return NotFound(
+                        ApiResponse<BookResponseDto>.FailureResponse(new List<string> { "Unable to delete book" })
+                    );
+                }
+
+                return NoContent();
+
+            } catch(Exception ex)
+            {
+                return BadRequest(
+                  ApiResponse<BookResponseDto>.FailureResponse(new List<string> { ex.Message })
+              );
             }
         }
     }

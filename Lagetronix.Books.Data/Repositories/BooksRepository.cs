@@ -26,6 +26,7 @@ namespace Lagetronix.Books.Data.Repositories
                                 .Include(book => book.Category)
                                 .Skip((page - 1) * 1)
                                 .Take(size)
+                                .OrderByDescending(ent => ent.CreatedAt)
                                 .ToListAsync();
         }
 
@@ -40,6 +41,7 @@ namespace Lagetronix.Books.Data.Repositories
                                .Include(book => book.Category)
                                .Skip((page - 1) * 1)
                                .Take(size)
+                               .OrderByDescending(ent => ent.CreatedAt)
                                .ToListAsync();
         }
     }

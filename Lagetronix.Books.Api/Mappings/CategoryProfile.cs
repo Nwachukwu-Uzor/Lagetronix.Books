@@ -24,6 +24,10 @@ namespace Lagetronix.Books.Api.Mappings
                     option => option.MapFrom(src => src.ModifiedOn.ToLongDateString())
                 );
 
+            CreateMap<CategoryPutRequestDto, Category>()
+                .ForMember(dest => dest.CreatedAt, opt => opt.UseDestinationValue())
+                .ForMember(dest => dest.ModifiedOn, opt => opt.MapFrom(src => DateTime.UtcNow));
+
             CreateMap<CategoryPatchUpdateDto, Category>()
                 .ForMember(
                     dest => dest.ModifiedOn,

@@ -109,6 +109,57 @@ namespace Lagetronix.Books.Api.Controllers
             }
         }
 
+        [HttpPut("{categoryId:Guid}")]
+        public async Task<ActionResult<ApiResponse<BookResponseDto>>> UpdateBook(Guid categoryId, CategoryPutRequestDto categoryUpdateDto)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(
+                        ApiResponse<BookResponseDto>
+                            .FailureResponse(new List<string> { "Invalid data for update" })
+                    );
+                }
+
+                var categoryEntity = await _unitOfWork.Categories.GetByIdAsync(categoryId);
+
+                if (categoryEntity == null)
+                {
+                    return NotFound(
+                         ApiResponse<CategoryResponseDto>
+                            .FailureResponse(new List<string> { "No category with the specified id" })
+                    );
+                }
+
+                var categoryUpdateEntity = _mapper.Map(categoryUpdateDto, categoryEntity);
+
+                var updatedCategory = await _unitOfWork.Categories.UpdateAsync(categoryUpdateEntity);
+
+                if (updatedCategory == null)
+                {
+                    return BadRequest(
+                        ApiResponse<CategoryResponseDto>
+                            .FailureResponse(new List<string> { "Invalid model properties" })
+                    );
+                }
+
+                var categoryToReturn = _mapper.Map<CategoryResponseDto>(updatedCategory);
+
+                return Ok(
+                    ApiResponse<CategoryResponseDto>.SuccessResponse(categoryToReturn)
+                );
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(
+                   ApiResponse<CategoryResponseDto>
+                   .FailureResponse(new List<string> { ex.Message })
+               );
+            }
+        }
+
         [HttpPatch("{categoryId:Guid}")]
         public async Task<ActionResult<ApiResponse<CategoryResponseDto>>> UpdateCategory(
             Guid categoryId, JsonPatchDocument<CategoryPatchUpdateDto> patchDocument

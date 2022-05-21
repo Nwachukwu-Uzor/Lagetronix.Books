@@ -26,7 +26,7 @@ namespace Lagetronix.Books.Data.Repositories
 
         public async Task<bool> DeleteAsync(T entity)
         {
-            _dbSet.Remove(entity);
+            entity.Status = 0;
             return await SaveChangesAsync();
         }
 
@@ -36,6 +36,7 @@ namespace Lagetronix.Books.Data.Repositories
                          .AsNoTracking()
                          .Skip((page - 1) * size)
                          .Take(size)
+                         .OrderByDescending(ent => ent.CreatedAt)
                          .ToListAsync();        
         }
 

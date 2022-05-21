@@ -27,6 +27,13 @@ namespace Lagetronix.Books.Api.Mappings
                     option => option.MapFrom(src => src.ModifiedOn.ToShortDateString())
                 );
 
+            CreateMap<BookPutUpdateDto, Book>()
+                .ForMember(dest => dest.Category, opt => opt.UseDestinationValue())
+                .ForMember(dest => dest.CategoryId, opt => opt.UseDestinationValue())
+                .ForMember(dest => dest.CreatedAt, opt => opt.UseDestinationValue())
+                .ForMember(dest => dest.IsFavorite, opt => opt.UseDestinationValue())
+                .ForMember(dest => dest.ModifiedOn, opt => opt.MapFrom(src => DateTime.UtcNow));
+
             CreateMap<BookPatchUpdateDto, Book>()
                .ForMember(
                    dest => dest.ModifiedOn,
