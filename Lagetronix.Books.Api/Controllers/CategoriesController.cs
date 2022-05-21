@@ -223,5 +223,39 @@ namespace Lagetronix.Books.Api.Controllers
                 );
             }
         }
+
+        [HttpDelete("{categoryId:Guid}")]
+        public async Task<ActionResult> DeleteBook(Guid categoryId)
+        {
+            try
+            {
+                var categoryToDelete = await _unitOfWork.Categories.GetByIdAsync(categoryId);
+
+                if (categoryToDelete == null)
+                {
+                    return NotFound(
+                        ApiResponse<BookResponseDto>.FailureResponse(new List<string> { "No category with the Id provided" })
+                    );
+                }
+
+                var isDeleted = await _unitOfWork.Categories.DeleteAsync(categoryToDelete);
+
+                if (!isDeleted)
+                {
+                    return NotFound(
+                        ApiResponse<CategoryResponseDto>.FailureResponse(new List<string> { "Unable to delete category" })
+                    );
+                }
+
+                return NoContent();
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(
+                  ApiResponse<CategoryResponseDto>.FailureResponse(new List<string> { ex.Message })
+              );
+            }
+        }
     }
 }
