@@ -299,6 +299,65 @@ namespace Lagetronix.Books.Api.Controllers
             }
         }
 
+        [HttpPut("{bookId:Guid}/updateCategory")]
+        public async Task<ActionResult<ApiResponse<BookResponseDto>>> UpdateBookCategory(Guid bookId, BookCategoryUpdateDto updateDto)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(
+                        ApiResponse<BookResponseDto>
+                            .FailureResponse(new List<string> { "Invalid data for update" })
+                    );
+                }
+
+                var bookToUpdate = await _unitOfWork.Books.GetByIdAsync(bookId);
+
+                if (bookToUpdate == null)
+                {
+                    return NotFound(
+                        ApiResponse<BookResponseDto>
+                            .FailureResponse(new List<string> { "Invalid book Id" })
+                    );
+                }
+
+                var category = await _unitOfWork.Categories.GetByIdAsync(updateDto.CategoryId);
+
+                if (category == null)
+                {
+                    return NotFound(
+                        ApiResponse<BookResponseDto>
+                            .FailureResponse(new List<string> { "Invalid category Id" })
+                    );
+                }
+
+                bookToUpdate.Category = category;
+
+                var updatedBookEntity = await _unitOfWork.Books.UpdateAsync(bookToUpdate);
+
+                if (updatedBookEntity == null)
+                {
+                    return BadRequest(
+                        ApiResponse<BookResponseDto>
+                            .FailureResponse(new List<string> { "Unable to update book's category" })
+                    );
+                }
+
+
+                var bookToReturn = _mapper.Map<BookResponseDto>(updatedBookEntity);
+
+                return Ok(
+                    ApiResponse<BookResponseDto>.SuccessResponse(bookToReturn)
+                );
+            } catch(Exception ex)
+            {
+                return BadRequest(
+                  ApiResponse<BookResponseDto>.FailureResponse(new List<string> { ex.Message })
+              );
+            }
+        }
+
         [HttpDelete("{bookId:Guid}")]
         public async Task<ActionResult> DeleteBook(Guid bookId)
         {
