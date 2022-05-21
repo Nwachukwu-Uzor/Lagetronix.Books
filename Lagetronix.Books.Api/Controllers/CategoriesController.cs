@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Lagetronix.Books.Api.Response;
 using Lagetronix.Books.Data.Contracts;
 using Lagetronix.Books.Data.Domain;
 using Lagetronix.Books.Data.Dto.Requests;
@@ -21,13 +22,15 @@ namespace Lagetronix.Books.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<CategoryResponseDto>> CreateCategoryAsync(CategoryRegistrationDto categoryRegistrationDto)
+        public async Task<ActionResult<ApiResponse<CategoryResponseDto>>> CreateCategoryAsync(CategoryRegistrationDto categoryRegistrationDto)
         {
             try
             {
                 if (!ModelState.IsValid)
                 {
-                    return BadRequest(null);
+                    return BadRequest(
+                        ApiResponse<CategoryResponseDto>.FailureResponse(new List<string> { "Invalid model properties" }) 
+                    );
                 }
 
                 var category = _mapper.Map<Category>(categoryRegistrationDto);
@@ -36,7 +39,9 @@ namespace Lagetronix.Books.Api.Controllers
 
                 if (category == null)
                 {
-                    return BadRequest(category);
+                    return BadRequest(
+                        ApiResponse<CategoryResponseDto>.FailureResponse(new List<string> { "Unable to create category" })
+                    );
                 }
 
                 var categoryToReturn = _mapper.Map<CategoryResponseDto>(categoryEntity);
@@ -44,31 +49,38 @@ namespace Lagetronix.Books.Api.Controllers
                 return CreatedAtRoute(
                     nameof(GetCategoryById),
                     new { categoryId = categoryEntity.Id },
-                    categoryToReturn
-                ); ;
+                    ApiResponse<CategoryResponseDto>.SuccessResponse(categoryToReturn)
+                ); 
 
             } catch(Exception ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(
+                    ApiResponse<CategoryResponseDto>.FailureResponse(new List<string> { ex.Message })
+                );
             }
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<CategoryResponseDto>>> GetAllCategoriesAsync(int page = 1, int size = 20)
+        public async Task<ActionResult<ApiResponse<IEnumerable<CategoryResponseDto>>>> GetAllCategoriesAsync(int page = 1, int size = 20)
         {
             try
             {
                 var categories = await _unitOfWork.Categories.GetAllAsync(page, size);
 
-                return Ok(_mapper.Map<IEnumerable<CategoryResponseDto>>(categories));
+                var categoriesToReturn = _mapper.Map<IEnumerable<CategoryResponseDto>>(categories);
+                return Ok(
+                    ApiResponse<IEnumerable<CategoryResponseDto>>.SuccessResponse(categoriesToReturn)
+                );
             } catch(Exception ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(
+                    ApiResponse<IEnumerable<CategoryResponseDto>>.FailureResponse(new List<string> { ex.Message })
+                );
             }
         }
 
         [HttpGet("{categoryId:Guid}", Name = nameof(GetCategoryById))]
-        public async Task<ActionResult<CategoryResponseDto>> GetCategoryById(Guid categoryId)
+        public async Task<ActionResult<ApiResponse<CategoryResponseDto>>> GetCategoryById(Guid categoryId)
         {
             try
             {
@@ -76,14 +88,22 @@ namespace Lagetronix.Books.Api.Controllers
 
                 if (category == null)
                 {
-                    return NotFound(null);
+                    return NotFound(
+                        ApiResponse<CategoryResponseDto>.FailureResponse(new List<string> { "No category with the Id provided" })
+                    );
                 }
 
-                return Ok(_mapper.Map<CategoryResponseDto>(category));
+                var categoryToReturn = _mapper.Map<CategoryResponseDto>(category);
+
+                return Ok(
+                    ApiResponse<CategoryResponseDto>.SuccessResponse(categoryToReturn)
+                );
 
             } catch(Exception ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(
+                        ApiResponse<CategoryResponseDto>.FailureResponse(new List<string> { ex.Message }) 
+                );
             }
         }
     }

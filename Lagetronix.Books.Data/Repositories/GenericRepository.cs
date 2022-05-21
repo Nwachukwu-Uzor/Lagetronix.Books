@@ -30,7 +30,7 @@ namespace Lagetronix.Books.Data.Repositories
             return await SaveChangesAsync();
         }
 
-        public async Task<IEnumerable<T>> GetAllAsync(int page, int size)
+        public virtual async Task<IEnumerable<T>> GetAllAsync(int page, int size)
         {
             return await _dbSet.Where(entity => entity.Status == 1)
                          .AsNoTracking()
@@ -39,7 +39,7 @@ namespace Lagetronix.Books.Data.Repositories
                          .ToListAsync();        
         }
 
-        public async Task<T> GetByIdAsync(Guid id)
+        public virtual async Task<T> GetByIdAsync(Guid id)
         {
             return await _dbSet.Where(ent => ent.Id == id && ent.Status == 1)
                                 .FirstOrDefaultAsync();

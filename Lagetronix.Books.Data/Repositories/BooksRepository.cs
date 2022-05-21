@@ -15,7 +15,7 @@ namespace Lagetronix.Books.Data.Repositories
         {
         }
 
-        public async Task<IEnumerable<Book>> GetBookAsync(int page, int size, bool includeCategory = false)
+        public async Task<IEnumerable<Book>> GetAllBooksAsync(int page, int size, bool includeCategory = true)
         {
             if (!includeCategory)
             {
@@ -27,6 +27,20 @@ namespace Lagetronix.Books.Data.Repositories
                                 .Skip((page - 1) * 1)
                                 .Take(size)
                                 .ToListAsync();
+        }
+
+        public async override Task<Book> GetByIdAsync(Guid id)
+        {
+            return await _dbSet.Where(book => book.Id == id && book.Status == 1).Include(book => book.Category).FirstAsync();
+        }
+
+        public async Task<IEnumerable<Book>> GetFavoriteBooks(int page, int size, bool includeCategory = false)
+        {
+            return await _dbSet.Where(book => book.Status == 1 && book.IsFavorite)
+                               .Include(book => book.Category)
+                               .Skip((page - 1) * 1)
+                               .Take(size)
+                               .ToListAsync();
         }
     }
 }

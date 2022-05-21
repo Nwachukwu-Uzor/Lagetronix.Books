@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace Lagetronix.Books.Data.Dto.Requests
+namespace Lagetronix.Books.Data.Dto.Requests.Category
 {
     public class CategoryRegistrationDto
     {
