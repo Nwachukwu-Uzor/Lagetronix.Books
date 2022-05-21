@@ -2,9 +2,10 @@
 using Lagetronix.Books.Api.Response;
 using Lagetronix.Books.Data.Contracts;
 using Lagetronix.Books.Data.Domain;
-using Lagetronix.Books.Data.Dto.Requests;
+using Lagetronix.Books.Data.Dto.Requests.Book;
 using Lagetronix.Books.Data.Dto.Responses;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -83,6 +84,32 @@ namespace Lagetronix.Books.Api.Controllers
 
                 var booksToReturn = _mapper.Map<IEnumerable<BookResponseDto>>(books);
 
+                Response.Headers.Add("page", page.ToString());
+
+                return Ok(
+                    ApiResponse<IEnumerable<BookResponseDto>>.SuccessResponse(booksToReturn)
+                );
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(
+                    ApiResponse<BookResponseDto>.FailureResponse(new List<string> { ex.Message })
+                );
+            }
+        }
+
+
+        [HttpGet("favorite")]
+        public async Task<ActionResult<IEnumerable<BookResponseDto>>> GetFavoriteBooks(int page = 1, int size = 20, bool includeCategory = false)
+        {
+            try
+            {
+                var books = await _unitOfWork.Books.GetFavoriteBooks(page, size, includeCategory);
+
+                var booksToReturn = _mapper.Map<IEnumerable<BookResponseDto>>(books);
+
+                Response.Headers.Add("page", page.ToString());
+
                 return Ok(
                     ApiResponse<IEnumerable<BookResponseDto>>.SuccessResponse(booksToReturn)
                 );
@@ -121,6 +148,104 @@ namespace Lagetronix.Books.Api.Controllers
                 return BadRequest(
                     ApiResponse<BookResponseDto>.FailureResponse(new List<string> { ex.Message })
                 );
+            }
+        }
+
+        [HttpPatch("{bookId:Guid}")]
+        public async Task<ActionResult<ApiResponse<BookResponseDto>>> UpdateBook(
+            Guid bookId, JsonPatchDocument<BookPatchUpdateDto> patchDocument
+        )
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(
+                        ApiResponse<BookResponseDto>
+                            .FailureResponse(new List<string> { "Invalid data for update" })
+                    );
+                }
+                var bookPatch = _mapper.Map<JsonPatchDocument<Book>>(patchDocument);
+
+                var bookEntity = await _unitOfWork.Books.GetByIdAsync(bookId);
+
+                if (bookEntity == null)
+                {
+                    return NotFound(
+                         ApiResponse<BookResponseDto>
+                            .FailureResponse(new List<string> { "No book with the specified id" })
+                    );
+                }
+
+                bookPatch.ApplyTo(bookEntity, ModelState);
+
+
+                var isValid = TryValidateModel(bookEntity);
+
+                if (!isValid)
+                {
+                    return BadRequest(
+                        ApiResponse<BookResponseDto>
+                            .FailureResponse(new List<string> { "Invalid model properties" })
+                    );
+                }
+
+                var entityFromDb = await _unitOfWork.Books.UpdateAsync(bookEntity);
+
+                if (entityFromDb == null)
+                {
+                    return BadRequest(
+                        ApiResponse<BookResponseDto>
+                            .FailureResponse(new List<string> { "Invalid model properties" })
+                    );
+                }
+
+                var bookToReturn = _mapper.Map<BookResponseDto>(entityFromDb);
+
+                return Ok(
+                    ApiResponse<BookResponseDto>.SuccessResponse(bookToReturn)
+                );
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(
+                    ApiResponse<BookResponseDto>
+                    .FailureResponse(new List<string> { ex.Message })
+                );
+            }
+        }
+
+
+        [HttpPut("favorite/{bookId:Guid}")]
+        public async Task<ActionResult<ApiResponse<BookResponseDto>>> SetFavoritesStatus(Guid bookId)
+        {
+            try
+            {
+                var book = await _unitOfWork.Books.GetByIdAsync(bookId);
+
+                if (book == null)
+                {
+                    return NotFound(
+                        ApiResponse<BookResponseDto>.FailureResponse(new List<string> { "No book with the Id provided" })
+                    );
+                }
+
+                book.IsFavorite = !book.IsFavorite;
+
+                var bookEntity = await _unitOfWork.Books.UpdateAsync(book);
+
+                var bookToReturn = _mapper.Map<BookResponseDto>(bookEntity);
+
+                return Ok(
+                    ApiResponse<BookResponseDto>.SuccessResponse(bookToReturn)
+                );
+
+            } catch(Exception ex)
+            {
+                return BadRequest(
+                   ApiResponse<BookResponseDto>.FailureResponse(new List<string> { ex.Message })
+               );
             }
         }
     }

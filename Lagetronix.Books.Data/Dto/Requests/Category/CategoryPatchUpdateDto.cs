@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Lagetronix.Books.Data.Dto.Requests.Category
 {
-    class CategoryUpdateRequestDto
+    public class CategoryPatchUpdateDto
     {
         [StringLength(int.MaxValue, MinimumLength = 3)]
         public string Name { get; set; }

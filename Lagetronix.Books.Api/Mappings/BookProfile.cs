@@ -2,6 +2,9 @@
 using Lagetronix.Books.Data.Domain;
 using Lagetronix.Books.Data.Dto.Requests.Book;
 using Lagetronix.Books.Data.Dto.Responses;
+using Microsoft.AspNetCore.JsonPatch;
+using Microsoft.AspNetCore.JsonPatch.Operations;
+using System;
 
 namespace Lagetronix.Books.Api.Mappings
 {
@@ -22,7 +25,20 @@ namespace Lagetronix.Books.Api.Mappings
                 .ForMember(
                     dest => dest.ModifiedOn,
                     option => option.MapFrom(src => src.ModifiedOn.ToShortDateString())
-                ); 
+                );
+
+            CreateMap<BookPatchUpdateDto, Book>()
+               .ForMember(
+                   dest => dest.ModifiedOn,
+                   option => option.MapFrom(src => DateTime.UtcNow)
+               )
+               .ForMember(
+                   dest => dest.Id,
+                   option => option.UseDestinationValue()
+               );
+
+            CreateMap<JsonPatchDocument<BookPatchUpdateDto>, JsonPatchDocument<Book>>();
+            CreateMap<Operation<BookPatchUpdateDto>, Operation<Book>>();
         }
     }
 }
