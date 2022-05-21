@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace Lagetronix.Books.Data.Repositories
 {
-    public class CategoriesRepositories : GenericRepository<Category>, ICategoriesRepository
+    public class CategoriesRepository : GenericRepository<Category>, ICategoriesRepository
     {
-        public CategoriesRepositories(AppDbContext context) : base(context)
+        public CategoriesRepository(AppDbContext context) : base(context)
         {
         }
     }

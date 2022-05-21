@@ -13,7 +13,7 @@ namespace Lagetronix.Books.Api.Mappings
     {
         public BookProfile()
         {
-            CreateMap<Book, BookRegistrationDto>();
+            CreateMap<BookRegistrationDto, Book>();
             CreateMap<Book, BookReponseDto>()
                 .ForMember(
                     dest => dest.Category,

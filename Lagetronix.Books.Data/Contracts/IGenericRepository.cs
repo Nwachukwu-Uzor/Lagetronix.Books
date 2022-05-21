@@ -10,8 +10,8 @@ namespace Lagetronix.Books.Data.Contracts
     {
         Task<IEnumerable<T>> GetAllAsync(int page, int size);
         Task<T> GetByIdAsync(Guid id);
-        Task<bool> AddAsync(T entity);
-        Task<bool> UpdateAsync(T entity);
+        Task<T> AddAsync(T entity);
+        Task<T> UpdateAsync(T entity);
         Task<bool> DeleteAsync(T entity);
         Task<bool> SaveChangesAsync();
     }

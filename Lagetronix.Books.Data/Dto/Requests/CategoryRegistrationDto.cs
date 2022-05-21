@@ -1,12 +1,15 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace Lagetronix.Books.Data.Dto.Requests
 {
     public class CategoryRegistrationDto
     {
-        public string Author { get; set; }
-        public string Title { get; set; }
-        public Guid CategoryId { get; set; }
+        [Required]
+        [StringLength(int.MaxValue, MinimumLength = 3)]
+        public string Name { get; set; }
+
+        [StringLength(int.MaxValue, MinimumLength = 3)]
         public string Description { get; set; }
     }
 }

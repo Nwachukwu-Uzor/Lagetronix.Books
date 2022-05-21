@@ -18,10 +18,10 @@ namespace Lagetronix.Books.Data.Repositories
             _dbSet = context.Set<T>();
             _context = context;
         }
-        public async Task<bool> AddAsync(T entity)
+        public async Task<T> AddAsync(T entity)
         {
             await _dbSet.AddAsync(entity);
-            return await SaveChangesAsync();
+            return await SaveChangesAsync() ? entity : null;
         }
 
         public async Task<bool> DeleteAsync(T entity)
@@ -47,13 +47,14 @@ namespace Lagetronix.Books.Data.Repositories
 
         public async Task<bool> SaveChangesAsync()
         {
-            return await _context.SaveChangesAsync() > 0;
+            var changes = await _context.SaveChangesAsync();
+            return changes > 0;
         }
 
-        public async Task<bool> UpdateAsync(T entity)
+        public async Task<T> UpdateAsync(T entity)
         {
             _dbSet.Update(entity);
-            return await SaveChangesAsync();
+            return await SaveChangesAsync() ? entity : null;
         }
     }
 }

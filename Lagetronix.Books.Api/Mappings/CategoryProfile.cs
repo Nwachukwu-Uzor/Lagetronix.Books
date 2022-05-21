@@ -9,7 +9,7 @@ namespace Lagetronix.Books.Api.Mappings
     {
         public CategoryProfile()
         {
-            CreateMap<Category, CategoryRegistrationDto>();
+            CreateMap<CategoryRegistrationDto, Category>();
             CreateMap<Category, CategoryResponseDto>();
         }
     }
