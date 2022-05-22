@@ -27,7 +27,7 @@ Right again and select "Rebuild Solution"
 Set the startup project of the solution to the "Lagetronix.Books.Api" Project
 <br >
 <br >
-<img src="./Startup Project.png">
+<img src="https://www.dropbox.com/s/v37u1tkfd85xgln/Default%20Project%20setup.PNG?dl=0">
 <br >
 <br >
 
