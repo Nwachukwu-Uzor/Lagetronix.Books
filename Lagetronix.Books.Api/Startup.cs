@@ -38,7 +38,7 @@ namespace Lagetronix.Books.Api
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Lagetronix.Books.Api", Version = "v1" });
             });
 
-            services.AddDbContext<AppDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultSqlServer")));
+            services.AddDbContext<AppDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("Default")));
             services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
 
