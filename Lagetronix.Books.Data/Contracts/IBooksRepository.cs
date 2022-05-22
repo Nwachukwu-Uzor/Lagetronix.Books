@@ -11,5 +11,6 @@ namespace Lagetronix.Books.Data.Contracts
     {
         Task<IEnumerable<Book>> GetAllBooksAsync(int page, int size, bool includeCategory = false);
         Task<IEnumerable<Book>> GetFavoriteBooks(int page, int size, bool includeCategory = false);
+        Task<IEnumerable<Book>> GetBooksByCategory(Guid categoryId, int page, int size, bool includeCategory = false);
     }
 }

@@ -120,6 +120,38 @@ namespace Lagetronix.Books.Api.Controllers
                     ApiResponse<BookResponseDto>.FailureResponse(new List<string> { ex.Message })
                 );
             }
+        } 
+        
+        [HttpGet("categories/{categoryId}")]
+        public async Task<ActionResult<IEnumerable<BookResponseDto>>> GetFavoriteBooks(Guid categoryId, int page = 1, int size = 20, bool includeCategory = false)
+        {
+            try
+            {
+                var category = await _unitOfWork.Categories.GetByIdAsync(categoryId);
+
+                if (category == null)
+                {
+                    return NotFound(
+                        ApiResponse<Book>.FailureResponse(new List<string> { "No Category with the Id provided" })
+                    );
+                }
+
+                var books = await _unitOfWork.Books.GetBooksByCategory(categoryId, page, size);
+
+                var booksToReturn = _mapper.Map<IEnumerable<BookResponseDto>>(books);
+
+                Response.Headers.Add("page", page.ToString());
+
+                return Ok(
+                    ApiResponse<IEnumerable<BookResponseDto>>.SuccessResponse(booksToReturn)
+                );
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(
+                    ApiResponse<BookResponseDto>.FailureResponse(new List<string> { ex.Message })
+                );
+            }
         }
 
         [HttpGet("{bookId:Guid}", Name = nameof(GetBookById))]

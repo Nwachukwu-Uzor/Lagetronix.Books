@@ -30,6 +30,16 @@ namespace Lagetronix.Books.Data.Repositories
                             .ToListAsync();
         }
 
+        public async Task<IEnumerable<Book>> GetBooksByCategory(Guid categoryId, int page, int size, bool includeCategory = false)
+        {
+            return await _dbSet.Where(book => book.Status == 1 && book.CategoryId == categoryId && book.Category.Status == 1)
+                               .Include(book => book.Category)
+                               .Skip((page - 1) * 1)
+                               .Take(size)
+                               .OrderByDescending(ent => ent.CreatedAt)
+                               .ToListAsync();
+        }
+
         public async override Task<Book> GetByIdAsync(Guid id)
         {
             return await _dbSet.Where(book => book.Id == id && book.Status == 1 && book.Category.Status == 1).Include(book => book.Category).FirstAsync();
