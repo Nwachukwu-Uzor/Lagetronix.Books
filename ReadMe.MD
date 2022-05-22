@@ -34,7 +34,10 @@ Set the startup project of the solution to the "Lagetronix.Books.Api" Project
 Open the package manager console (on the toolbar in Visual Studio navigate to **Tools > Nugget Package Manager > Package Manager Console**) and set the default project in the console to "Lagetronix.Books.Data"
 <br >
 <br >
+
+<p>
 <img src="Default Project setup.png" >
+</p>
 <br >
 <br >
 On the package manager console, run the command
